@@ -19,5 +19,5 @@
         "step1, e.g., calculation of total/free energies",
         "code1, e.g., VASP"
     ],
-    "logo" : "workflow_logo.png"
+    "logo" : "logo_dark.png"
 }
