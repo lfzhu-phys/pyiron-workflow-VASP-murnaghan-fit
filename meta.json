@@ -1,17 +1,16 @@
 {
     "workflow_environment":"pyiron",
-    "title": "pyiron workflow template",
+    "title": "pyiron workflow: VASP - murnaghan_fit",
     "authors": [
-        "author1 <email_address>",
-        "author2 <email_address>"
+        "Li-Fang Zhu <l.zhu@mpie.de>"
     ],
-    "description": "description of what the workflow does",
+    "description": "This workflow obtains equilibrium energy, volume and bulk modulus of Al using Murnaghan fit from ab initio calculations with VASP.",
     "release": "0.0.1",
     "keywords": [
         "workflow",
-        "template",
-        "keyword1",
-        "keyword2"
+        "Murnaghan fit",
+        "ab initio",
+        "VASP"
     ],
     "categories":[
         "category1, e.g., continuum/atomistics/experimental",
