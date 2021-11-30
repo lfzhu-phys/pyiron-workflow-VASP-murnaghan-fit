@@ -13,22 +13,11 @@
         "VASP"
     ],
     "categories":[
-        "category1, e.g., continuum/atomistics/experimental",
-        "catergory2, e.g., continuum/atomistics/experimental"
+        "ab initio calculations"
     ],
     "steps/codes":[
-        "step1, e.g., calculation of elastic modulus",
-        "code1, e.g., LAMMPS",
-        "step2, e.g., macroscopic response",
-        "code2, e.g., DAMASK"
+        "step1, e.g., calculation of total/free energies",
+        "code1, e.g., VASP"
     ],
-    "license": {
-        "softwar1": "license1",
-        "software2": "license2"
-    },
-    "publication": [
-        "publication1",
-        "publication2"
-    ],
-    "logo" : "logo_dark.png"
+    "logo" : "workflow_logo.png"
 }
