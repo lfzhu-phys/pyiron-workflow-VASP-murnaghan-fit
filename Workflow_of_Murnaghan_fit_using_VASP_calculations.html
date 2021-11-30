@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>&lt;no title&gt; &#8212; pyiron-workflow-VASP-murnaghan-fit</title>
+    <title>Workflow Murnaghan fit using VASP calculations &#8212; pyiron-workflow-VASP-murnaghan-fit</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -95,6 +95,14 @@
   </a>
  </li>
 </ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Workflow Murnaghan fit using VASP calculations
+  </a>
+ </li>
+</ul>
+
     </div>
 </nav> <!-- To handle the deprecated key -->
 
@@ -154,19 +162,28 @@
 
             <!-- Launch buttons -->
 
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Launch interactive content"><i class="fas fa-rocket"></i></button>
+    <div class="dropdown-buttons">
+        
+        <a class="binder-button" href="https://mybinder.org/v2/gh/lfzhu-phys/pyiron-workflow-VASP-murnaghan-fit/master?urlpath=lab/tree/Workflow_of_Murnaghan_fit_using_VASP_calculations.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Launch Binder" data-toggle="tooltip"
+                data-placement="left"><img class="binder-button-logo"
+                    src="_static/images/logo_binder.svg"
+                    alt="Interact on binder">Binder</button></a>
+        
+        
+        
+        
+    </div>
+</div>
+
         </div>
 
         <!-- Table of contents -->
         <div class="d-none d-md-block col-md-2 bd-toc show">
             
-            <div class="tocsection onthispage pt-5 pb-3">
-                <i class="fas fa-list"></i> Contents
-            </div>
-            <nav id="bd-toc-nav" aria-label="Page">
-                <ul class="simple visible nav section-nav flex-column">
-</ul>
-
-            </nav>
         </div>
     </div>
 </div>
@@ -175,7 +192,265 @@
         
               <div>
                 
-  
+  <div class="tex2jax_ignore mathjax_ignore section" id="workflow-murnaghan-fit-using-vasp-calculations">
+<h1>Workflow Murnaghan fit using VASP calculations<a class="headerlink" href="#workflow-murnaghan-fit-using-vasp-calculations" title="Permalink to this headline">¶</a></h1>
+<p>This workflow aims to calculate the equilibrium energy, volume and bulk modulus of Al from ab initio. Murnaghan fit is applied and VASP is used for the calculations. Structures with 11 lattice constants using the experimental one as the center points are calculated.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyiron.project</span> <span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyiron_utility</span> <span class="kn">import</span> <span class="n">run_EOS_vasp_jobs</span>
+<span class="kn">from</span> <span class="nn">pyiron_utility</span> <span class="kn">import</span> <span class="n">print_job_status</span>
+<span class="kn">from</span> <span class="nn">pyiron_utility</span> <span class="kn">import</span> <span class="n">print_cpu_time</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pr</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="s1">&#39;EOS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Setting up the necessary parameters</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_parameter</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;project&#39;</span><span class="p">:</span> <span class="n">pr</span><span class="p">,</span>
+                     <span class="s1">&#39;element&#39;</span><span class="p">:</span> <span class="s1">&#39;Al&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;crystal_structure&#39;</span><span class="p">:</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;supercell&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                     <span class="s1">&#39;shift&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># experimental lattice constant is automatically assigned as the center point</span>
+                     <span class="s1">&#39;npoints&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>       <span class="c1"># number of lattice constants between shifts -0.1 and 0.1</span>
+                     <span class="s1">&#39;xc&#39;</span><span class="p">:</span> <span class="s1">&#39;PBE&#39;</span><span class="p">,</span>        <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;encut&#39;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>       <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;kmesh&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>         <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;ismear&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>        <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>      <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;PREC&#39;</span><span class="p">:</span> <span class="s1">&#39;Acuurate&#39;</span><span class="p">,</span> <span class="c1"># VASP_related parameter</span>
+                     <span class="s1">&#39;cluster&#39;</span><span class="p">:</span> <span class="s1">&#39;cm&#39;</span><span class="p">,</span>    <span class="c1"># cluster_realted parameter</span>
+                     <span class="s1">&#39;cpu_cores&#39;</span><span class="p">:</span> <span class="mi">1</span>      <span class="c1"># cluster_related parameter</span>
+                    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#pr.remove_jobs(recursive=True)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Setting up and running calculations</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">run_EOS_vasp_jobs</span><span class="p">(</span><span class="n">project_parameter</span> <span class="o">=</span> <span class="n">project_parameter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_3_95Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:46,721 - pyiron_log - WARNING - The job ham_3_95Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:46,721 - pyiron_log - WARNING - The job ham_3_95Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_3_97Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:47,614 - pyiron_log - WARNING - The job ham_3_97Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:47,614 - pyiron_log - WARNING - The job ham_3_97Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_3_99Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:48,530 - pyiron_log - WARNING - The job ham_3_99Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:48,530 - pyiron_log - WARNING - The job ham_3_99Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_01Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:49,447 - pyiron_log - WARNING - The job ham_4_01Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:49,447 - pyiron_log - WARNING - The job ham_4_01Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_03Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:50,353 - pyiron_log - WARNING - The job ham_4_03Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:50,353 - pyiron_log - WARNING - The job ham_4_03Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_05Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:51,252 - pyiron_log - WARNING - The job ham_4_05Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:51,252 - pyiron_log - WARNING - The job ham_4_05Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_07Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:52,173 - pyiron_log - WARNING - The job ham_4_07Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:52,173 - pyiron_log - WARNING - The job ham_4_07Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_09Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:53,058 - pyiron_log - WARNING - The job ham_4_09Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:53,058 - pyiron_log - WARNING - The job ham_4_09Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_11Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:53,956 - pyiron_log - WARNING - The job ham_4_11Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:53,956 - pyiron_log - WARNING - The job ham_4_11Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_13Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:54,848 - pyiron_log - WARNING - The job ham_4_13Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:54,848 - pyiron_log - WARNING - The job ham_4_13Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ham_4_15Ang
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:01:55,765 - pyiron_log - WARNING - The job ham_4_15Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:01:55,765 - pyiron_log - WARNING - The job ham_4_15Ang is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_job_status</span><span class="p">(</span><span class="n">project_parameter</span> <span class="o">=</span> <span class="n">project_parameter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total number of jobs is 12.
+Finished jobs is 12.
+Submitted jobs is 0.
+Running jobs is 0.
+Aborted jobs is 0.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_cpu_time</span><span class="p">(</span><span class="n">project_parameter</span> <span class="o">=</span> <span class="n">project_parameter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>For current project 1 cores are used for calculations.
+The shortest CPU time of finished jobs is 0.0000 in hours.
+The longest CPU time of finished jobs is 0.0006 in hours.
+The average CPU time of finished jobs is 0.0005 in hours.
+</pre></div>
+</div>
+</div>
+</div>
+<p>Extracting data from the calculations</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">create</span><span class="o">.</span><span class="n">table</span><span class="p">()</span>
+<span class="n">table</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">get_energy_free_per_atom</span>
+<span class="n">table</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">get_volume_per_atom</span>
+<span class="n">table</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2021-11-30 16:04:40,026 - pyiron_log - WARNING - The job table is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+2021-11-30 16:04:40,026 - pyiron_log - WARNING - The job table is being loaded instead of running. To re-run use the argument &#39;delete_existing_job=True in create_job&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>plotting the data</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">()</span> 
+<span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;volume&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">energy_free</span><span class="p">,</span> <span class="s1">&#39;o-&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/Workflow_of_Murnaghan_fit_using_VASP_calculations_14_0.png" src="_images/Workflow_of_Murnaghan_fit_using_VASP_calculations_14_0.png" />
+</div>
+</div>
+<p>applying murnaghan fit</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyiron.atomistics.master.murnaghan</span> <span class="kn">import</span> <span class="n">EnergyVolumeFit</span>
+<span class="n">ev_fit</span> <span class="o">=</span> <span class="n">EnergyVolumeFit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ev_fit</span> <span class="o">=</span> <span class="n">EnergyVolumeFit</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">energy_free</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fit_dict</span> <span class="o">=</span> <span class="n">ev_fit</span><span class="o">.</span><span class="n">fit_eos_general</span><span class="p">(</span><span class="n">fittype</span><span class="o">=</span><span class="s1">&#39;vinet&#39;</span><span class="p">)</span>
+<span class="n">fit_dict</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;fit_type&#39;: &#39;vinet&#39;,
+ &#39;volume_eq&#39;: 16.602778428185392,
+ &#39;energy_eq&#39;: -3.683416417191908,
+ &#39;bulkmodul_eq&#39;: 80.27777317220281,
+ &#39;b_prime_eq&#39;: 4.6650753105726475,
+ &#39;least_square_error&#39;: array([7.06581343e-05, 4.58512252e-01, 4.27707542e-01, 4.91816963e-03])}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plotting the original data and the fitted data</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vol_lst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">volume</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">volume</span><span class="p">),</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">energy_free</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;dft&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vol_lst</span><span class="p">,</span> <span class="n">ev_fit</span><span class="o">.</span><span class="n">vinet_energy</span><span class="p">(</span><span class="n">vol_lst</span><span class="p">,</span> <span class="n">fit_dict</span><span class="p">[</span><span class="s1">&#39;energy_eq&#39;</span><span class="p">],</span> <span class="n">fit_dict</span><span class="p">[</span><span class="s1">&#39;bulkmodul_eq&#39;</span><span class="p">]</span><span class="o">/</span><span class="mf">160.21766208</span><span class="p">,</span> <span class="n">fit_dict</span><span class="p">[</span><span class="s1">&#39;b_prime_eq&#39;</span><span class="p">],</span> <span class="n">fit_dict</span><span class="p">[</span><span class="s1">&#39;volume_eq&#39;</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;vinet&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Volume ($\AA ^ 3$)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Energy (eV)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/Workflow_of_Murnaghan_fit_using_VASP_calculations_20_0.png" src="_images/Workflow_of_Murnaghan_fit_using_VASP_calculations_20_0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pr</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">destination_path</span><span class="o">=</span><span class="s2">&quot;save&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
